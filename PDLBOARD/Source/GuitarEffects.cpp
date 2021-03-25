@@ -52,6 +52,7 @@ void GuitarEffectAudioProcessor::addODParameters(juce::AudioProcessorValueTreeSt
     layout.add(std::move(group));
 }
 
+
 void GuitarEffectAudioProcessor::addChorusParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout)
 {
     auto chorusDryWet = std::make_unique<juce::AudioParameterFloat>(IDs::chorusDryWet_id, "Dry / Wet", juce::NormalisableRange<float>(0.f, 1.f, 0.01f), 0.5f);
@@ -60,6 +61,7 @@ void GuitarEffectAudioProcessor::addChorusParameters(juce::AudioProcessorValueTr
     auto chorusOffset = std::make_unique<juce::AudioParameterFloat>(IDs::chorusOffset_id, "Phase Offset", juce::NormalisableRange<float>(0.f, 1.f, 0.01f), 0.f);
     auto chorusFeedback = std::make_unique<juce::AudioParameterFloat>(IDs::chorusFeedback_id, "Feedback", juce::NormalisableRange<float>(0.f, 0.98f, 0.01f), 0.5f);
     auto chorusType = std::make_unique<juce::AudioParameterChoice>(IDs::chorusType_id, "Type", juce::StringArray("Chorus", "Flanger"), 0);
+    auto onoff = std::make_unique<juce::AudioParameterBool>(IDs::onoff_id2, "On / Off", false);
 
     auto group = std::make_unique<juce::AudioProcessorParameterGroup>("chorus", "Chorus", "|",
                                                                         std::move(chorusDryWet),
@@ -67,7 +69,8 @@ void GuitarEffectAudioProcessor::addChorusParameters(juce::AudioProcessorValueTr
                                                                         std::move(chorusRate),
                                                                         std::move(chorusOffset),
                                                                         std::move(chorusFeedback),
-                                                                        std::move(chorusType));
+                                                                        std::move(chorusType),
+                                                                        std::move(onoff));
     layout.add(std::move(group));
 
 }
@@ -77,11 +80,13 @@ void GuitarEffectAudioProcessor::addDelayParameters(juce::AudioProcessorValueTre
     auto delayDryWet = std::make_unique<juce::AudioParameterFloat>(IDs::delayDryWet_id, "Dry / Wet", juce::NormalisableRange<float>(0.f, 1.f, 0.01f), 0.5f);
     auto delayFeedback = std::make_unique<juce::AudioParameterFloat>(IDs::delayFeedback_id, "Feedback", juce::NormalisableRange<float>(0.f, 0.98f, 0.01f), 0.5f);
     auto delayTime = std::make_unique<juce::AudioParameterFloat>(IDs::delayTime_id, "Delay", juce::NormalisableRange<float>(0.f, MAX_DELAY_TIME, 0.01f), 0.5f);
+    auto onoff = std::make_unique<juce::AudioParameterBool>(IDs::onoff_id3, "On / Off", false);
 
     auto group = std::make_unique<juce::AudioProcessorParameterGroup>("delay", "Delay", "|",
                                                                         std::move(delayDryWet),
                                                                         std::move(delayFeedback),
-                                                                        std::move(delayTime));
+                                                                        std::move(delayTime),
+                                                                        std::move(onoff));
     layout.add(std::move(group));
 }
 
