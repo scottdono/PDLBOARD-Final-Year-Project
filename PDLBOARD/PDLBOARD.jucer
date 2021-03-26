@@ -3,7 +3,8 @@
 <JUCERPROJECT id="HnpAwD" name="PDLBOARD" projectType="audioplug" useAppConfig="0"
               addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1"
               companyName="C17325426 - FYP" companyEmail="c17325426@mytudublin.ie"
-              companyWebsite="https://github.com/scottdono" pluginFormats="buildStandalone,buildVST3">
+              companyWebsite="https://github.com/scottdono" pluginFormats="buildStandalone,buildVST3"
+              headerPath="C:\Users\Scott\Desktop\PDLBOARD-Final-Year-Project\PDLBOARD\ASIO SDK dependencies\common">
   <MAINGROUP id="JexXNP" name="PDLBOARD">
     <GROUP id="{A8637772-B5B2-05C7-BD44-19CCE02148E6}" name="Source">
       <FILE id="ZVIsWq" name="GuitarEffects.h" compile="0" resource="0" file="Source/GuitarEffects.h"/>
@@ -20,12 +21,11 @@
     </GROUP>
   </MAINGROUP>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_VST3_CAN_REPLACE_VST2="0"
-               FOLEYS_ENABLE_BINARY_DATA="1"/>
+               FOLEYS_ENABLE_BINARY_DATA="1" JUCE_ASIO="1" FOLEYS_SHOW_GUI_EDITOR_PALLETTE="0"/>
   <EXPORTFORMATS>
     <VS2019 targetFolder="Builds/VisualStudio2019">
       <CONFIGURATIONS>
-        <CONFIGURATION isDebug="1" name="Debug" targetName="PDLBOARD" vst3BinaryLocation="C:\Program Files\Common Files\VST3"
-                       enablePluginBinaryCopyStep="0"/>
+        <CONFIGURATION isDebug="1" name="Debug" targetName="PDLBOARD" enablePluginBinaryCopyStep="1"/>
         <CONFIGURATION isDebug="0" name="Release" targetName="PDLBOARD"/>
       </CONFIGURATIONS>
       <MODULEPATHS>

@@ -22,14 +22,13 @@ public:
     static void addDelayParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout);
     static void addChorusParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout);
 
-    float lin_interp(float sample_x, float sample_x1, float inPhase);
-
     GuitarEffectAudioProcessor() = default;
 
     class Overdrive 
     {
     public:
         Overdrive (juce::AudioProcessorValueTreeState& state);
+        Overdrive() = default;
 
     private:
         juce::AudioProcessorValueTreeState& state;
@@ -46,6 +45,7 @@ public:
     {
     public:
         Chorus (juce::AudioProcessorValueTreeState& state);
+        Chorus() = default;
 
     private:
         // Parameter declarations
@@ -57,20 +57,6 @@ public:
         juce::AudioParameterFloat* mChorusFeedbackParameter = nullptr;
         juce::AudioParameterChoice* mChorusTypeParameter = nullptr;
 
-
-        // Circular buffer data
-        float* mCircularBufferLeft;
-        float* mCircularBufferRight;
-
-        int mCircularBufferLength;
-        int mCircularBufferWriteHead;
-
-        float mFeedbackLeft;
-        float mFeedbackRight;
-
-        // LFO data
-        float mLFOPhase;
-
         //==============================================================================
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Chorus)
     };
@@ -79,24 +65,13 @@ public:
     {
     public:
         Delay(juce::AudioProcessorValueTreeState& state);
+        Delay() = default;
 
     private:
         juce::AudioProcessorValueTreeState& state;
         juce::AudioParameterFloat* mDelayDryWetParameter = nullptr;
         juce::AudioParameterFloat* mDelayFeedbackParameter = nullptr;
         juce::AudioParameterFloat* mDelayTimeParameter = nullptr;
-
-        float* mCircularBufferLeft;
-        float* mCircularBufferRight;
-
-        int mCircularBufferLength;
-        int mCircularBufferWriteHead;
-
-        float mFeedbackLeft;
-        float mFeedbackRight;
-
-        float mDelayTimeInSamples;
-        float mDelayReadHead;
 
         //==============================================================================
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Delay)

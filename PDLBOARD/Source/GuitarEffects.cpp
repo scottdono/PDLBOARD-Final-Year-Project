@@ -38,7 +38,7 @@ namespace IDs
 void GuitarEffectAudioProcessor::addODParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout)
 {
     auto overdrive = std::make_unique<juce::AudioParameterFloat>(IDs::overdrive_id, "Overdrive", juce::NormalisableRange<float>(0.f, 1.f, 0.01f), 0.5f);
-    auto range = std::make_unique<juce::AudioParameterFloat>(IDs::range_id, "Range", juce::NormalisableRange<float>(0.f, 300.f, 0.01f), 0.5f);
+    auto range = std::make_unique<juce::AudioParameterFloat>(IDs::range_id, "Range", juce::NormalisableRange<float>(0.f, 300.f, 0.01f), 100.f);
     auto blend = std::make_unique<juce::AudioParameterFloat>(IDs::blend_id, "Blend", juce::NormalisableRange<float>(0.f, 1.f, 0.01f), 0.5f);
     auto volume = std::make_unique<juce::AudioParameterFloat>(IDs::volume_id, "Volume", juce::NormalisableRange<float>(0.f, 3.f, 0.01f), 0.5f);
     auto onoff = std::make_unique<juce::AudioParameterBool>(IDs::onoff_id1, "On / Off", false);
@@ -56,10 +56,10 @@ void GuitarEffectAudioProcessor::addODParameters(juce::AudioProcessorValueTreeSt
 void GuitarEffectAudioProcessor::addChorusParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout)
 {
     auto chorusDryWet = std::make_unique<juce::AudioParameterFloat>(IDs::chorusDryWet_id, "Dry / Wet", juce::NormalisableRange<float>(0.f, 1.f, 0.01f), 0.5f);
-    auto chorusDepth = std::make_unique<juce::AudioParameterFloat>(IDs::chorusDepth_id, "Depth", juce::NormalisableRange<float>(0.f, 1.f, 0.01f), 0.5f);
-    auto chorusRate = std::make_unique<juce::AudioParameterFloat>(IDs::chorusRate_id, "Rate", juce::NormalisableRange<float>(0.f, 10.f, 0.01f), 0.5f);
+    auto chorusDepth = std::make_unique<juce::AudioParameterFloat>(IDs::chorusDepth_id, "Depth", juce::NormalisableRange<float>(0.f, 1.f, 0.01f), 0.2f);
+    auto chorusRate = std::make_unique<juce::AudioParameterFloat>(IDs::chorusRate_id, "Rate", juce::NormalisableRange<float>(0.f, 10.f, 0.01f), 0.2f);
     auto chorusOffset = std::make_unique<juce::AudioParameterFloat>(IDs::chorusOffset_id, "Phase Offset", juce::NormalisableRange<float>(0.f, 1.f, 0.01f), 0.f);
-    auto chorusFeedback = std::make_unique<juce::AudioParameterFloat>(IDs::chorusFeedback_id, "Feedback", juce::NormalisableRange<float>(0.f, 0.98f, 0.01f), 0.5f);
+    auto chorusFeedback = std::make_unique<juce::AudioParameterFloat>(IDs::chorusFeedback_id, "Feedback", juce::NormalisableRange<float>(0.f, 0.98f, 0.01f), 0.3f);
     auto chorusType = std::make_unique<juce::AudioParameterChoice>(IDs::chorusType_id, "Type", juce::StringArray("Chorus", "Flanger"), 0);
     auto onoff = std::make_unique<juce::AudioParameterBool>(IDs::onoff_id2, "On / Off", false);
 
@@ -78,8 +78,8 @@ void GuitarEffectAudioProcessor::addChorusParameters(juce::AudioProcessorValueTr
 void GuitarEffectAudioProcessor::addDelayParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout)
 {
     auto delayDryWet = std::make_unique<juce::AudioParameterFloat>(IDs::delayDryWet_id, "Dry / Wet", juce::NormalisableRange<float>(0.f, 1.f, 0.01f), 0.5f);
-    auto delayFeedback = std::make_unique<juce::AudioParameterFloat>(IDs::delayFeedback_id, "Feedback", juce::NormalisableRange<float>(0.f, 0.98f, 0.01f), 0.5f);
-    auto delayTime = std::make_unique<juce::AudioParameterFloat>(IDs::delayTime_id, "Delay", juce::NormalisableRange<float>(0.f, MAX_DELAY_TIME, 0.01f), 0.5f);
+    auto delayFeedback = std::make_unique<juce::AudioParameterFloat>(IDs::delayFeedback_id, "Feedback", juce::NormalisableRange<float>(0.f, 0.98f, 0.01f), 0.3f);
+    auto delayTime = std::make_unique<juce::AudioParameterFloat>(IDs::delayTime_id, "Delay", juce::NormalisableRange<float>(0.f, MAX_DELAY_TIME, 0.01f), 0.3f);
     auto onoff = std::make_unique<juce::AudioParameterBool>(IDs::onoff_id3, "On / Off", false);
 
     auto group = std::make_unique<juce::AudioProcessorParameterGroup>("delay", "Delay", "|",
@@ -92,7 +92,6 @@ void GuitarEffectAudioProcessor::addDelayParameters(juce::AudioProcessorValueTre
 
 GuitarEffectAudioProcessor::Overdrive::Overdrive (juce::AudioProcessorValueTreeState& stateToUse) : state (stateToUse)
 {
-
     // Construct parameters for all effects into ValueTreeState
     mDriveParameter = dynamic_cast<juce::AudioParameterFloat*>(state.getParameter(IDs::overdrive_id));
     jassert(mDriveParameter);

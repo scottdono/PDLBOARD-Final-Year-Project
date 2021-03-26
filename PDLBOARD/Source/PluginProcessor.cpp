@@ -11,6 +11,13 @@
 //==============================================================================
 juce::AudioProcessorValueTreeState::ParameterLayout PDLBOARDAudioProcessor::createParameterLayout() 
 {
+    /*
+    * This function is used to call the various 'add parameter' functions from the GuitarEffects file.
+    * It defines the IDs, Names, Ranges and Values for the parameters as well as groups them together.
+    * These groups can then be added to a layout and easily edited with the PluginGuiMagic module.
+    * 
+    */
+
     juce::AudioProcessorValueTreeState::ParameterLayout layout;
     GuitarEffectAudioProcessor::addODParameters(layout);
     GuitarEffectAudioProcessor::addChorusParameters(layout);
@@ -20,6 +27,10 @@ juce::AudioProcessorValueTreeState::ParameterLayout PDLBOARDAudioProcessor::crea
 
 float PDLBOARDAudioProcessor::lin_interp(float sample_x, float sample_x1, float inPhase)
 {
+    /*
+    * This function provides the formula for linear interpolation which allows for smooth changes during playback.
+    */
+
     //Wikipedia formula
     return (1 - inPhase) * sample_x + inPhase * sample_x1;
 }
@@ -28,28 +39,27 @@ float PDLBOARDAudioProcessor::lin_interp(float sample_x, float sample_x1, float 
 PDLBOARDAudioProcessor::PDLBOARDAudioProcessor()
 : treeState(*this, nullptr, ProjectInfo::projectName, createParameterLayout())
 {
-    //auto defaultGUI = magicState.createDefaultGUITree();
-    //magicState.setGuiValueTree (defaultGUI);
+    // Load the GUI theme from the xml in the resources.
     magicState.setGuiValueTree(BinaryData::theme_copy_xml, BinaryData::theme_copy_xmlSize);
 
-    new GuitarEffectAudioProcessor::Overdrive(treeState);
-    new GuitarEffectAudioProcessor::Chorus(treeState);
-    new GuitarEffectAudioProcessor::Delay(treeState);
+    // Call functions to push effect parameters into the treeState.
+    GuitarEffectAudioProcessor::Overdrive::Overdrive(treeState);
+    GuitarEffectAudioProcessor::Chorus::Chorus(treeState);
+    GuitarEffectAudioProcessor::Delay::Delay(treeState);
 
-    // Initialise data to default values
+    // Initialise data to default values.
     mCircularBufferLeft = nullptr;
     mCircularBufferRight = nullptr;
     mCircularBufferWriteHead = 0;
     mCircularBufferLength = 0;
 
-    mDelayTimeInSamples = 0;
-    mDelayReadHead = 0;
-
     mFeedbackLeft = 0;
     mFeedbackRight = 0;
 
+    mDelayTimeInSamples = 0;
+    mDelayReadHead = 0;
+
     mLFOPhase = 0;
-    
 }
 
 PDLBOARDAudioProcessor::~PDLBOARDAudioProcessor()
@@ -66,10 +76,15 @@ double PDLBOARDAudioProcessor::getTailLengthSeconds() const
 //==============================================================================
 void PDLBOARDAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    // Initialise data for current sample rate. Reset phase and writeheads
+    /*
+    * The prepareToPlay function is called to intitialise anything that will be needed before the main process beings.
+    */
 
     // Initialise the phase;
     mLFOPhase = 0;
+
+    // Initialise the writehead
+    mCircularBufferWriteHead = 0;
 
     // Calculate the circular buffer length
     mCircularBufferLength = sampleRate * MAX_DELAY_TIME;
@@ -82,14 +97,12 @@ void PDLBOARDAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
     // Clear any junk data in the buffer
     juce::zeromem(mCircularBufferLeft, mCircularBufferLength * sizeof(float));
 
+    // Same for the right buffer
     if (mCircularBufferRight == nullptr) {
         mCircularBufferRight = new float[mCircularBufferLength];
     }
 
     juce::zeromem(mCircularBufferRight, mCircularBufferLength * sizeof(float));
-
-    // Initialise the writehead
-    mCircularBufferWriteHead = 0;
 }
 
 void PDLBOARDAudioProcessor::releaseResources()
@@ -124,6 +137,11 @@ bool PDLBOARDAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts)
 
 void PDLBOARDAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
+    /*
+    * The process block is the main block of code where the audio signals 
+    * are processed and where the digital signal processing can occur.
+    */
+
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
@@ -154,16 +172,20 @@ void PDLBOARDAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
-    mDelayTimeInSamples = getSampleRate() * *dDelayTime;
-
-    // Obtain the audio data pointers for left and right channel
-    float* leftChannel = buffer.getWritePointer(0);
-    float* rightChannel = buffer.getWritePointer(1);
-
+    // Iterate through the audio channels.
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
-        auto* channelData = buffer.getWritePointer(channel);
+        // Obtain the audiodata pointers for single channel for distortion algorithm
+        float* channelData = buffer.getWritePointer(channel);
+
+        // Obtain the audio data pointers for left and right channel for delay effects
+        float* leftChannel = buffer.getWritePointer(0);
+        float* rightChannel = buffer.getWritePointer(1);
+
+        // Set the delay time based on sample rate and delay parameter
+        mDelayTimeInSamples = getSampleRate() * *dDelayTime;
         
+        // Iterate through the audio buffer
         for (int i = 0; i < buffer.getNumSamples(); i++)
         {
             // Process Overdrive if button is turned on.
@@ -183,7 +205,7 @@ void PDLBOARDAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
             // Process Chorus if button is on.
             if (chorusOnOff == true)
             {
-                // write into the circular buffer
+                // Write into the circular buffer
                 mCircularBufferLeft[mCircularBufferWriteHead] = leftChannel[i] + mFeedbackLeft;
                 mCircularBufferRight[mCircularBufferWriteHead] = rightChannel[i] + mFeedbackRight;
 
@@ -269,7 +291,7 @@ void PDLBOARDAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
                     readHeadRight_x1 -= mCircularBufferLength;
                 }
 
-                // Generate the output samples. See lin_interp() at the bottom of the code.
+                // Generate the output samples. See lin_interp() at the top of the code.
                 float delay_sample_left = lin_interp(mCircularBufferLeft[readHeadLeft_x], mCircularBufferLeft[readHeadLeft_x1], readHeadFloatLeft);
                 float delay_sample_right = lin_interp(mCircularBufferRight[readHeadRight_x], mCircularBufferRight[readHeadRight_x1], readHeadFloatRight);
 
@@ -293,6 +315,7 @@ void PDLBOARDAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
 
             //===========================================================================
 
+            // Process Dekay if button is on.
             if (delayOnOff == true)
             {
                 mCircularBufferLeft[mCircularBufferWriteHead] = leftChannel[i] + mFeedbackLeft;
@@ -321,15 +344,15 @@ void PDLBOARDAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
 
                 mCircularBufferWriteHead++;
 
-                buffer.setSample(0, i, buffer.getSample(0, i) * (1 - *dDryWet) + delay_sample_left * *dDryWet);
-                buffer.setSample(1, i, buffer.getSample(1, i) * (1 - *dDryWet) + delay_sample_right * *dDryWet);
-
                 if (mCircularBufferWriteHead >= mCircularBufferLength) {
                     mCircularBufferWriteHead = 0;
                 }
-            }
 
-        }
+                buffer.setSample(0, i, buffer.getSample(0, i) * (1 - *dDryWet) + delay_sample_left * *dDryWet);
+                buffer.setSample(1, i, buffer.getSample(1, i) * (1 - *dDryWet) + delay_sample_right * *dDryWet);  
+            }// end if for delay
+
+        }// end buffer loop
     }
 }
 
